@@ -49,12 +49,14 @@ import java.net.InetSocketAddress;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
+import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_PRIORITY_DEADLINE;
 import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT;
 import static io.netty.handler.codec.http2.Http2TestUtil.runInChannel;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
@@ -110,7 +112,7 @@ public class DataCompressionHttp2Test {
                 return null;
             }
         }).when(serverListener).onHeadersRead(any(ChannelHandlerContext.class), anyInt(), any(Http2Headers.class),
-                anyInt(), anyShort(), anyBoolean(), anyInt(), anyBoolean());
+                anyInt(), anyShort(), anyLong(), anyBoolean(), anyInt(), anyBoolean());
     }
 
     @After
@@ -156,7 +158,8 @@ public class DataCompressionHttp2Test {
         });
         awaitServer();
         verify(serverListener).onHeadersRead(any(ChannelHandlerContext.class), eq(3), eq(headers), eq(0),
-                eq(DEFAULT_PRIORITY_WEIGHT), eq(false), eq(0), eq(true));
+                eq(DEFAULT_PRIORITY_WEIGHT), eq(DEFAULT_PRIORITY_DEADLINE),
+                eq(false), eq(0), eq(true));
     }
 
     @Test

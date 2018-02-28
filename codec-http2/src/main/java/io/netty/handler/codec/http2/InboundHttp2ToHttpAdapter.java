@@ -265,7 +265,8 @@ public class InboundHttp2ToHttpAdapter extends Http2EventAdapter {
 
     @Override
     public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int streamDependency,
-                    short weight, boolean exclusive, int padding, boolean endOfStream) throws Http2Exception {
+                    short weight, long deadline, boolean exclusive, int padding, boolean endOfStream)
+            throws Http2Exception {
         Http2Stream stream = connection.stream(streamId);
         FullHttpMessage msg = processHeadersBegin(ctx, stream, headers, endOfStream, true, true);
         if (msg != null) {

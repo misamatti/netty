@@ -208,10 +208,12 @@ public final class Http2TestUtil {
 
                 @Override
                 public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers,
-                        int streamDependency, short weight, boolean exclusive, int padding, boolean endStream)
+                        int streamDependency, short weight,
+                                          long deadline, boolean exclusive, int padding, boolean endStream)
                         throws Http2Exception {
                     Http2Stream stream = getOrCreateStream(streamId, endStream);
-                    listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight, exclusive, padding,
+                    listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight,
+                            deadline, exclusive, padding,
                             endStream);
                     if (endStream) {
                         closeStream(stream);
@@ -221,8 +223,8 @@ public final class Http2TestUtil {
 
                 @Override
                 public void onPriorityRead(ChannelHandlerContext ctx, int streamId, int streamDependency, short weight,
-                        boolean exclusive) throws Http2Exception {
-                    listener.onPriorityRead(ctx, streamId, streamDependency, weight, exclusive);
+                        long deadline, boolean exclusive) throws Http2Exception {
+                    listener.onPriorityRead(ctx, streamId, streamDependency, weight, deadline, exclusive);
                     latch.countDown();
                 }
 
@@ -349,8 +351,10 @@ public final class Http2TestUtil {
 
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int streamDependency,
-                short weight, boolean exclusive, int padding, boolean endStream) throws Http2Exception {
-            listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight, exclusive, padding, endStream);
+                short weight, long deadline,  boolean exclusive, int padding, boolean endStream)
+                throws Http2Exception {
+            listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight,
+                    deadline, exclusive, padding, endStream);
             messageLatch.countDown();
             if (trailersLatch != null && endStream) {
                 trailersLatch.countDown();
@@ -359,8 +363,8 @@ public final class Http2TestUtil {
 
         @Override
         public void onPriorityRead(ChannelHandlerContext ctx, int streamId, int streamDependency, short weight,
-                boolean exclusive) throws Http2Exception {
-            listener.onPriorityRead(ctx, streamId, streamDependency, weight, exclusive);
+                long deadline, boolean exclusive) throws Http2Exception {
+            listener.onPriorityRead(ctx, streamId, streamDependency, weight, deadline, exclusive);
             messageLatch.countDown();
         }
 

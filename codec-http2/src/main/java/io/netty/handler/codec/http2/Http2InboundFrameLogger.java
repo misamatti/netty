@@ -58,19 +58,19 @@ public class Http2InboundFrameLogger implements Http2FrameReader {
 
             @Override
             public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
-                    Http2Headers headers, int streamDependency, short weight, boolean exclusive,
+                    Http2Headers headers, int streamDependency, short weight, long deadline, boolean exclusive,
                     int padding, boolean endStream) throws Http2Exception {
                 logger.logHeaders(INBOUND, ctx, streamId, headers, streamDependency, weight, exclusive,
                         padding, endStream);
-                listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight, exclusive,
+                listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight, deadline, exclusive,
                         padding, endStream);
             }
 
             @Override
             public void onPriorityRead(ChannelHandlerContext ctx, int streamId,
-                    int streamDependency, short weight, boolean exclusive) throws Http2Exception {
+                    int streamDependency, short weight, long deadline, boolean exclusive) throws Http2Exception {
                 logger.logPriority(INBOUND, ctx, streamId, streamDependency, weight, exclusive);
-                listener.onPriorityRead(ctx, streamId, streamDependency, weight, exclusive);
+                listener.onPriorityRead(ctx, streamId, streamDependency, weight, deadline, exclusive);
             }
 
             @Override

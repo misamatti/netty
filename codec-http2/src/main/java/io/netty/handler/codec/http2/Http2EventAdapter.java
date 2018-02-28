@@ -37,12 +37,12 @@ public class Http2EventAdapter implements Http2Connection.Listener, Http2FrameLi
 
     @Override
     public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int streamDependency,
-            short weight, boolean exclusive, int padding, boolean endStream) throws Http2Exception {
+            short weight, long deadline, boolean exclusive, int padding, boolean endStream) throws Http2Exception {
     }
 
     @Override
     public void onPriorityRead(ChannelHandlerContext ctx, int streamId, int streamDependency, short weight,
-            boolean exclusive) throws Http2Exception {
+            long deadline, boolean exclusive) throws Http2Exception {
     }
 
     @Override

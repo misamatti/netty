@@ -97,7 +97,7 @@ public interface Http2FrameListener {
      *            for this stream.
      */
     void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers,
-            int streamDependency, short weight, boolean exclusive, int padding, boolean endOfStream)
+            int streamDependency, short weight, long deadline, boolean exclusive, int padding, boolean endOfStream)
             throws Http2Exception;
 
     /**
@@ -115,7 +115,7 @@ public interface Http2FrameListener {
      * @param exclusive whether or not the stream should be the exclusive dependent of its parent.
      */
     void onPriorityRead(ChannelHandlerContext ctx, int streamId, int streamDependency,
-            short weight, boolean exclusive) throws Http2Exception;
+            short weight, long deadline, boolean exclusive) throws Http2Exception;
 
     /**
      * Handles an inbound {@code RST_STREAM} frame.

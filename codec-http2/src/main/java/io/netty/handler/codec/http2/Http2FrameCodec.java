@@ -509,7 +509,7 @@ public class Http2FrameCodec extends Http2ConnectionHandler {
 
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
-                                  Http2Headers headers, int streamDependency, short weight, boolean
+                                  Http2Headers headers, int streamDependency, short weight, long deadline, boolean
                                           exclusive, int padding, boolean endStream) {
             onHeadersRead(ctx, streamId, headers, padding, endStream);
         }
@@ -537,7 +537,8 @@ public class Http2FrameCodec extends Http2ConnectionHandler {
 
         @Override
         public void onPriorityRead(
-                ChannelHandlerContext ctx, int streamId, int streamDependency, short weight, boolean exclusive) {
+                ChannelHandlerContext ctx, int streamId, int streamDependency, short weight,
+                long deadline, boolean exclusive) {
             // TODO: Maybe handle me
         }
 

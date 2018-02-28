@@ -91,7 +91,7 @@ public interface Http2RemoteFlowController extends Http2FlowController {
      *               must be between 1 and 256 (inclusive).
      * @param exclusive If {@code childStreamId} should be the exclusive dependency of {@code parentStreamId}.
      */
-    void updateDependencyTree(int childStreamId, int parentStreamId, short weight, boolean exclusive);
+    void updateDependencyTree(int childStreamId, int parentStreamId, short weight, long deadline, boolean exclusive);
 
     /**
      * Implementations of this interface are used to progressively write chunks of the underlying

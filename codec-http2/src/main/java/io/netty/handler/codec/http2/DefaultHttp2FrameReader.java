@@ -251,7 +251,12 @@ public class DefaultHttp2FrameReader implements Http2FrameReader, Http2FrameSize
                 readDataFrame(ctx, payload, listener);
                 break;
             case HEADERS:
-                readHeadersFrame(ctx, payload, listener);
+                try {
+                    readHeadersFrame(ctx, payload, listener);
+                } catch (Exception e) {
+                    //System.err.println(e.pr);
+                    e.printStackTrace();
+                }
                 break;
             case PRIORITY:
                 readPriorityFrame(ctx, payload, listener);
@@ -439,6 +444,10 @@ public class DefaultHttp2FrameReader implements Http2FrameReader, Http2FrameSize
                 throw streamError(streamId, PROTOCOL_ERROR, "A stream cannot depend on itself.");
             }
             final short weight = (short) (payload.readUnsignedByte() + 1);
+            // READ DEADLINE HERE??
+            final long deadline = (long) (payload.readByte());
+            System.err.println("Deadline on readHeadersFrame: " + String.valueOf(deadline));
+
             final ByteBuf fragment = payload.readSlice(lengthWithoutTrailingPadding(payload.readableBytes(), padding));
 
             // Create a handler that invokes the listener when the header block is complete.
@@ -455,7 +464,7 @@ public class DefaultHttp2FrameReader implements Http2FrameReader, Http2FrameSize
                     hdrBlockBuilder.addFragment(fragment, ctx.alloc(), endOfHeaders);
                     if (endOfHeaders) {
                         listener.onHeadersRead(ctx, headersStreamId, hdrBlockBuilder.headers(), streamDependency,
-                                weight, exclusive, padding, headersFlags.endOfStream());
+                                weight, deadline, exclusive, padding, headersFlags.endOfStream());
                     }
                 }
             };
@@ -507,7 +516,9 @@ public class DefaultHttp2FrameReader implements Http2FrameReader, Http2FrameSize
             throw streamError(streamId, PROTOCOL_ERROR, "A stream cannot depend on itself.");
         }
         short weight = (short) (payload.readUnsignedByte() + 1);
-        listener.onPriorityRead(ctx, streamId, streamDependency, weight, exclusive);
+        /*// Read deadline
+        long deadline = (long) (payload.readLong());*/
+        listener.onPriorityRead(ctx, streamId, streamDependency, weight, -1, exclusive);
     }
 
     private void readRstStreamFrame(ChannelHandlerContext ctx, ByteBuf payload,

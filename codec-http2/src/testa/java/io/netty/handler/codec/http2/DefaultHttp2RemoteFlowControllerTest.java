@@ -30,11 +30,7 @@ import org.mockito.stubbing.Answer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.netty.handler.codec.http2.Http2CodecUtil.CONNECTION_STREAM_ID;
-import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT;
-import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_WINDOW_SIZE;
-import static io.netty.handler.codec.http2.Http2CodecUtil.MAX_WEIGHT;
-import static io.netty.handler.codec.http2.Http2CodecUtil.MIN_WEIGHT;
+import static io.netty.handler.codec.http2.Http2CodecUtil.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -116,8 +112,10 @@ public abstract class DefaultHttp2RemoteFlowControllerTest {
         connection.local().createStream(STREAM_B, false);
         Http2Stream streamC = connection.local().createStream(STREAM_C, false);
         Http2Stream streamD = connection.local().createStream(STREAM_D, false);
-        controller.updateDependencyTree(streamC.id(), STREAM_A, DEFAULT_PRIORITY_WEIGHT, false);
-        controller.updateDependencyTree(streamD.id(), STREAM_A, DEFAULT_PRIORITY_WEIGHT, false);
+        controller.updateDependencyTree(streamC.id(), STREAM_A, DEFAULT_PRIORITY_WEIGHT,
+                DEFAULT_PRIORITY_DEADLINE, false);
+        controller.updateDependencyTree(streamD.id(), STREAM_A, DEFAULT_PRIORITY_WEIGHT,
+                DEFAULT_PRIORITY_DEADLINE, false);
     }
 
     @Test
@@ -910,32 +908,38 @@ public abstract class DefaultHttp2RemoteFlowControllerTest {
 
     @Test(expected = AssertionError.class)
     public void invalidParentStreamIdThrows() {
-        controller.updateDependencyTree(STREAM_D, -1, DEFAULT_PRIORITY_WEIGHT, true);
+        controller.updateDependencyTree(STREAM_D, -1, DEFAULT_PRIORITY_WEIGHT,
+                DEFAULT_PRIORITY_DEADLINE, true);
     }
 
     @Test(expected = AssertionError.class)
     public void invalidChildStreamIdThrows() {
-        controller.updateDependencyTree(-1, STREAM_D, DEFAULT_PRIORITY_WEIGHT, true);
+        controller.updateDependencyTree(-1, STREAM_D, DEFAULT_PRIORITY_WEIGHT,
+                DEFAULT_PRIORITY_DEADLINE, true);
     }
 
     @Test(expected = AssertionError.class)
     public void connectionChildStreamIdThrows() {
-        controller.updateDependencyTree(0, STREAM_D, DEFAULT_PRIORITY_WEIGHT, true);
+        controller.updateDependencyTree(0, STREAM_D, DEFAULT_PRIORITY_WEIGHT,
+                DEFAULT_PRIORITY_DEADLINE, true);
     }
 
     @Test(expected = AssertionError.class)
     public void invalidWeightTooSmallThrows() {
-        controller.updateDependencyTree(STREAM_A, STREAM_D, (short) (MIN_WEIGHT - 1), true);
+        controller.updateDependencyTree(STREAM_A, STREAM_D, (short) (MIN_WEIGHT - 1),
+                DEFAULT_PRIORITY_DEADLINE, true);
     }
 
     @Test(expected = AssertionError.class)
     public void invalidWeightTooBigThrows() {
-        controller.updateDependencyTree(STREAM_A, STREAM_D, (short) (MAX_WEIGHT + 1), true);
+        controller.updateDependencyTree(STREAM_A, STREAM_D, (short) (MAX_WEIGHT + 1),
+                DEFAULT_PRIORITY_DEADLINE, true);
     }
 
     @Test(expected = AssertionError.class)
     public void dependencyOnSelfThrows() {
-        controller.updateDependencyTree(STREAM_A, STREAM_A, DEFAULT_PRIORITY_WEIGHT, true);
+        controller.updateDependencyTree(STREAM_A, STREAM_A, DEFAULT_PRIORITY_WEIGHT,
+                DEFAULT_PRIORITY_DEADLINE, true);
     }
 
     private void assertWritabilityChanged(int amt, boolean writable) {

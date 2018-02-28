@@ -65,6 +65,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
@@ -368,7 +369,7 @@ public class HttpToHttp2ConnectionHandlerTest {
         assertTrue(writeFuture.isSuccess());
         awaitRequests();
         verify(serverListener).onHeadersRead(any(ChannelHandlerContext.class), eq(3), eq(http2Headers), eq(0),
-                anyShort(), anyBoolean(), eq(0), eq(false));
+                anyShort(), anyLong(), anyBoolean(), eq(0), eq(false));
         verify(serverListener).onDataRead(any(ChannelHandlerContext.class), eq(3), any(ByteBuf.class), eq(0),
                 eq(true));
         assertEquals(1, receivedBuffers.size());
@@ -417,11 +418,11 @@ public class HttpToHttp2ConnectionHandlerTest {
         assertTrue(writeFuture.isSuccess());
         awaitRequests();
         verify(serverListener).onHeadersRead(any(ChannelHandlerContext.class), eq(3), eq(http2Headers), eq(0),
-                anyShort(), anyBoolean(), eq(0), eq(false));
+                anyShort(), anyLong(), anyBoolean(), eq(0), eq(false));
         verify(serverListener).onDataRead(any(ChannelHandlerContext.class), eq(3), any(ByteBuf.class), eq(0),
                 eq(false));
         verify(serverListener).onHeadersRead(any(ChannelHandlerContext.class), eq(3), eq(http2TrailingHeaders), eq(0),
-                anyShort(), anyBoolean(), eq(0), eq(true));
+                anyShort(), anyLong(), anyBoolean(), eq(0), eq(true));
         assertEquals(1, receivedBuffers.size());
         assertEquals(text, receivedBuffers.get(0));
     }
@@ -489,11 +490,11 @@ public class HttpToHttp2ConnectionHandlerTest {
 
         awaitRequests();
         verify(serverListener).onHeadersRead(any(ChannelHandlerContext.class), eq(3), eq(http2Headers), eq(0),
-                anyShort(), anyBoolean(), eq(0), eq(false));
+                anyShort(), anyLong(), anyBoolean(), eq(0), eq(false));
         verify(serverListener).onDataRead(any(ChannelHandlerContext.class), eq(3), any(ByteBuf.class), eq(0),
                 eq(false));
         verify(serverListener).onHeadersRead(any(ChannelHandlerContext.class), eq(3), eq(http2TrailingHeaders), eq(0),
-                anyShort(), anyBoolean(), eq(0), eq(true));
+                anyShort(), anyLong(), anyBoolean(), eq(0), eq(true));
         assertEquals(1, receivedBuffers.size());
         assertEquals(text + text2, receivedBuffers.get(0));
     }
@@ -566,7 +567,7 @@ public class HttpToHttp2ConnectionHandlerTest {
         assertTrue(writeFuture.isSuccess());
         awaitRequests();
         verify(serverListener).onHeadersRead(any(ChannelHandlerContext.class), eq(5),
-                eq(expected), eq(0), anyShort(), anyBoolean(), eq(0), eq(true));
+                eq(expected), eq(0), anyShort(), anyLong(), anyBoolean(), eq(0), eq(true));
         verify(serverListener, never()).onDataRead(any(ChannelHandlerContext.class), anyInt(),
                 any(ByteBuf.class), anyInt(), anyBoolean());
     }

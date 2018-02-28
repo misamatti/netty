@@ -27,27 +27,7 @@ import io.netty.util.internal.UnstableApi;
 
 import static io.netty.buffer.Unpooled.directBuffer;
 import static io.netty.buffer.Unpooled.unreleasableBuffer;
-import static io.netty.handler.codec.http2.Http2CodecUtil.CONTINUATION_FRAME_HEADER_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.DATA_FRAME_HEADER_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_MAX_FRAME_SIZE;
-import static io.netty.handler.codec.http2.Http2CodecUtil.FRAME_HEADER_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.GO_AWAY_FRAME_HEADER_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.HEADERS_FRAME_HEADER_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.INT_FIELD_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.MAX_UNSIGNED_BYTE;
-import static io.netty.handler.codec.http2.Http2CodecUtil.MAX_UNSIGNED_INT;
-import static io.netty.handler.codec.http2.Http2CodecUtil.MAX_WEIGHT;
-import static io.netty.handler.codec.http2.Http2CodecUtil.MIN_WEIGHT;
-import static io.netty.handler.codec.http2.Http2CodecUtil.PING_FRAME_PAYLOAD_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.PRIORITY_ENTRY_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.PRIORITY_FRAME_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.PUSH_PROMISE_FRAME_HEADER_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.RST_STREAM_FRAME_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.SETTING_ENTRY_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.WINDOW_UPDATE_FRAME_LENGTH;
-import static io.netty.handler.codec.http2.Http2CodecUtil.isMaxFrameSizeValid;
-import static io.netty.handler.codec.http2.Http2CodecUtil.verifyPadding;
-import static io.netty.handler.codec.http2.Http2CodecUtil.writeFrameHeaderInternal;
+import static io.netty.handler.codec.http2.Http2CodecUtil.*;
 import static io.netty.handler.codec.http2.Http2Error.FRAME_SIZE_ERROR;
 import static io.netty.handler.codec.http2.Http2Exception.connectionError;
 import static io.netty.handler.codec.http2.Http2FrameTypes.CONTINUATION;
@@ -478,6 +458,19 @@ public class DefaultHttp2FrameWriter implements Http2FrameWriter, Http2FrameSize
 
                 // Adjust the weight so that it fits into a single byte on the wire.
                 buf.writeByte(weight - 1);
+                System.err.println(headers);
+                String deadlineHeaderName = "deadline";
+                // write the deadline to headers, passed as a header
+                if (headers.contains(deadlineHeaderName)) {
+                    System.err.println("deadline found");
+                    final long deadline = headers.getLong(deadlineHeaderName);
+                    //buf.writeByte((byte) deadline);
+                } else {
+                    System.err.println("deadline NOT found.");
+                    // default value
+                    final long deadline = DEFAULT_PRIORITY_DEADLINE;
+                    //buf.writeByte((byte) deadline);
+                }
             }
             ctx.write(buf, promiseAggregator.newPromise());
 
@@ -493,8 +486,10 @@ public class DefaultHttp2FrameWriter implements Http2FrameWriter, Http2FrameSize
                 writeContinuationFrames(ctx, streamId, headerBlock, padding, promiseAggregator);
             }
         } catch (Http2Exception e) {
+            System.err.println(e);
             promiseAggregator.setFailure(e);
         } catch (Throwable t) {
+            System.err.println(t);
             promiseAggregator.setFailure(t);
             promiseAggregator.doneAllocatingPromises();
             PlatformDependent.throwException(t);

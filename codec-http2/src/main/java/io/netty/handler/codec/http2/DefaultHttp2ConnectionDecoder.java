@@ -25,6 +25,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import java.util.List;
 
 import static io.netty.handler.codec.http.HttpStatusClass.INFORMATIONAL;
+import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_PRIORITY_DEADLINE;
 import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT;
 import static io.netty.handler.codec.http2.Http2Error.INTERNAL_ERROR;
 import static io.netty.handler.codec.http2.Http2Error.PROTOCOL_ERROR;
@@ -266,12 +267,14 @@ public class DefaultHttp2ConnectionDecoder implements Http2ConnectionDecoder {
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int padding,
                 boolean endOfStream) throws Http2Exception {
-            onHeadersRead(ctx, streamId, headers, 0, DEFAULT_PRIORITY_WEIGHT, false, padding, endOfStream);
+            onHeadersRead(ctx, streamId, headers, 0, DEFAULT_PRIORITY_WEIGHT,
+                    DEFAULT_PRIORITY_DEADLINE, false, padding, endOfStream);
         }
 
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int streamDependency,
-                short weight, boolean exclusive, int padding, boolean endOfStream) throws Http2Exception {
+                short weight, long deadline, boolean exclusive, int padding, boolean endOfStream)
+                throws Http2Exception {
             Http2Stream stream = connection.stream(streamId);
             boolean allowHalfClosedRemote = false;
             if (stream == null && !connection.streamMayHaveExisted(streamId)) {
@@ -316,9 +319,10 @@ public class DefaultHttp2ConnectionDecoder implements Http2ConnectionDecoder {
             }
 
             stream.headersReceived(isInformational);
-            encoder.flowController().updateDependencyTree(streamId, streamDependency, weight, exclusive);
+            encoder.flowController().updateDependencyTree(streamId, streamDependency, weight, deadline, exclusive);
 
-            listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight, exclusive, padding, endOfStream);
+            listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight,
+                    deadline, exclusive, padding, endOfStream);
 
             // If the headers completes this stream, close it.
             if (endOfStream) {
@@ -328,10 +332,10 @@ public class DefaultHttp2ConnectionDecoder implements Http2ConnectionDecoder {
 
         @Override
         public void onPriorityRead(ChannelHandlerContext ctx, int streamId, int streamDependency, short weight,
-                boolean exclusive) throws Http2Exception {
-            encoder.flowController().updateDependencyTree(streamId, streamDependency, weight, exclusive);
+                long deadline, boolean exclusive) throws Http2Exception {
+            encoder.flowController().updateDependencyTree(streamId, streamDependency, weight, deadline, exclusive);
 
-            listener.onPriorityRead(ctx, streamId, streamDependency, weight, exclusive);
+            listener.onPriorityRead(ctx, streamId, streamDependency, weight, deadline, exclusive);
         }
 
         @Override
@@ -600,17 +604,18 @@ public class DefaultHttp2ConnectionDecoder implements Http2ConnectionDecoder {
 
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int streamDependency,
-                short weight, boolean exclusive, int padding, boolean endOfStream) throws Http2Exception {
+                short weight, long deadline, boolean exclusive, int padding, boolean endOfStream)
+                throws Http2Exception {
             verifyPrefaceReceived();
-            internalFrameListener.onHeadersRead(ctx, streamId, headers, streamDependency, weight,
+            internalFrameListener.onHeadersRead(ctx, streamId, headers, streamDependency, weight, deadline,
                     exclusive, padding, endOfStream);
         }
 
         @Override
         public void onPriorityRead(ChannelHandlerContext ctx, int streamId, int streamDependency, short weight,
-                boolean exclusive) throws Http2Exception {
+                long deadline, boolean exclusive) throws Http2Exception {
             verifyPrefaceReceived();
-            internalFrameListener.onPriorityRead(ctx, streamId, streamDependency, weight, exclusive);
+            internalFrameListener.onPriorityRead(ctx, streamId, streamDependency, weight, deadline, exclusive);
         }
 
         @Override

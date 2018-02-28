@@ -86,7 +86,8 @@ public final class UniformStreamByteDistributor implements StreamByteDistributor
     }
 
     @Override
-    public void updateDependencyTree(int childStreamId, int parentStreamId, short weight, boolean exclusive) {
+    public void updateDependencyTree(int childStreamId, int parentStreamId, short weight,
+                                     long deadline, boolean exclusive) {
         // This class ignores priority and dependency!
     }
 

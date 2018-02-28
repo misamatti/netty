@@ -31,10 +31,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import static io.netty.handler.codec.http2.Http2CodecUtil.CONNECTION_STREAM_ID;
-import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_MIN_ALLOCATION_CHUNK;
-import static io.netty.handler.codec.http2.Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT;
-import static io.netty.handler.codec.http2.Http2CodecUtil.streamableBytes;
+import static io.netty.handler.codec.http2.Http2CodecUtil.*;
 import static io.netty.handler.codec.http2.Http2Error.INTERNAL_ERROR;
 import static io.netty.handler.codec.http2.Http2Exception.connectionError;
 import static java.lang.Integer.MAX_VALUE;
@@ -195,7 +192,8 @@ public final class WeightedFairQueueByteDistributor implements StreamByteDistrib
     }
 
     @Override
-    public void updateDependencyTree(int childStreamId, int parentStreamId, short weight, boolean exclusive) {
+    public void updateDependencyTree(int childStreamId, int parentStreamId, short weight,
+                                     long deadline, boolean exclusive) {
         State state = state(childStreamId);
         if (state == null) {
             // If there is no State object that means there is no Http2Stream object and we would have to keep the
@@ -232,6 +230,9 @@ public final class WeightedFairQueueByteDistributor implements StreamByteDistrib
             state.parent.totalQueuedWeights += weight - state.weight;
         }
         state.weight = weight;
+
+        // Add deadline to state
+        state.deadline = deadline;
 
         if (newParent != state.parent || (exclusive && newParent.children.size() != 1)) {
             final List<ParentChangedEvent> events;
@@ -478,6 +479,9 @@ public final class WeightedFairQueueByteDistributor implements StreamByteDistrib
         long totalQueuedWeights;
         private byte flags;
         short weight = DEFAULT_PRIORITY_WEIGHT;
+
+        // Default deadline value
+        long deadline = DEFAULT_PRIORITY_DEADLINE;
 
         State(int streamId) {
             this(streamId, null, 0);

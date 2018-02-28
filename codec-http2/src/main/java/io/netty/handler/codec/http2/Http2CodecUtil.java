@@ -106,6 +106,7 @@ public final class Http2CodecUtil {
     public static final int DEFAULT_WINDOW_SIZE = 65535;
     public static final short DEFAULT_PRIORITY_WEIGHT = 16;
     public static final int DEFAULT_HEADER_TABLE_SIZE = 4096;
+    public static final long DEFAULT_PRIORITY_DEADLINE = 0;
     /**
      * <a href="https://tools.ietf.org/html/rfc7540#section-6.5.2">The initial value of this setting is unlimited</a>.
      * However in practice we don't want to allow our peers to use unlimited memory by default. So we take advantage

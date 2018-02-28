@@ -44,14 +44,15 @@ public class Http2FrameListenerDecorator implements Http2FrameListener {
 
     @Override
     public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int streamDependency,
-            short weight, boolean exclusive, int padding, boolean endStream) throws Http2Exception {
-        listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight, exclusive, padding, endStream);
+            short weight, long deadline,  boolean exclusive, int padding, boolean endStream) throws Http2Exception {
+        listener.onHeadersRead(ctx, streamId, headers, streamDependency, weight,
+                deadline, exclusive, padding, endStream);
     }
 
     @Override
     public void onPriorityRead(ChannelHandlerContext ctx, int streamId, int streamDependency, short weight,
-            boolean exclusive) throws Http2Exception {
-        listener.onPriorityRead(ctx, streamId, streamDependency, weight, exclusive);
+            long deadline, boolean exclusive) throws Http2Exception {
+        listener.onPriorityRead(ctx, streamId, streamDependency, weight, deadline, exclusive);
     }
 
     @Override

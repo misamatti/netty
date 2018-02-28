@@ -90,7 +90,7 @@ public interface StreamByteDistributor {
      *               must be between 1 and 256 (inclusive).
      * @param exclusive If {@code childStreamId} should be the exclusive dependency of {@code parentStreamId}.
      */
-    void updateDependencyTree(int childStreamId, int parentStreamId, short weight, boolean exclusive);
+    void updateDependencyTree(int childStreamId, int parentStreamId, short weight, long deadline, boolean exclusive);
 
     /**
      * Distributes up to {@code maxBytes} to those streams containing streamable bytes and
